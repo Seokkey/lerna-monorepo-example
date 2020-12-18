@@ -23,5 +23,8 @@
   "bugs": {
     "url": "https://github.com/Seokkey/lerna-monorepo-example/issues"
   },
-  "homepage": "https://github.com/Seokkey/lerna-monorepo-example#readme"
+  "homepage": "https://github.com/Seokkey/lerna-monorepo-example#readme",
+  "dependencies": {
+    "chalk": "^4.1.0"
+  }
 }

@@ -1,9 +1,11 @@
 {
   "name": "lerna-monorepo-example",
+  "private": true,
   "workspaces": [
     "packages/*"
   ],
   "devDependencies": {
+    "eslint": "^7.15.0",
     "lerna": "^3.22.1"
   }
 }
