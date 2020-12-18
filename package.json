@@ -1,0 +1,9 @@
+{
+  "name": "lerna-monorepo-example",
+  "workspaces": [
+    "packages/*"
+  ],
+  "devDependencies": {
+    "lerna": "^3.22.1"
+  }
+}
