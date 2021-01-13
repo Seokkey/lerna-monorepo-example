@@ -262,3 +262,225 @@ lerna diff [package?]
 참고 : https://pks2974.medium.com/mono-repo-%EB%A5%BC-%EC%9C%84%ED%95%9C-lerna-%EA%B0%84%EB%8B%A8-%EC%A0%95%EB%A6%AC%ED%95%98%EA%B8%B0-65c22029988  
 참고 : https://chaewonkong.github.io/posts/lerna-react-typescript.html  
 참고 : https://rokt33r.github.io/posts/monorepo-and-lerna  
+
+
+
+
+## react-native lerna 설정
+
+#### 0. 사전설치
+* NodeJS v14.8.0이상
+* yarn
+```
+npm i -g yarn
+```
+* lerna
+```bash
+npm install -g lerna
+```
+* Android - Android Studio(With SDK, NDK)
+* iOS - XCode
+
+#### 1. 프로젝트 생성
+```bash
+./project
+    /packages
+        /pacakge1
+        /package2
+```
+
+```bash
+mkdir [project]
+cd [project]
+yarn init -y -p
+npx lerna init
+```
+
+#### 2. lerna.json 설정 
+```json
+{
+  "version": "independent",
+  "npmClient": "yarn",
+  "useWorkspaces": true,
+  "packages": [
+    "packages/*"
+  ]
+}
+```
+
+#### 3. package.json 설정 
+```json
+{
+  "name": "safesea-mas-app-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": {
+    "packages" : [
+        "packages/*"
+    ],
+    "nohoist:": []
+  },
+  "scripts": {
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "start": "react-native start",
+    "clean": "rm -rf node_modules && lerna clean --yes && yarn cache clean && yarn"
+  },
+  "devDependencies": {
+    "lerna": "^3.22.1",
+    "react-native": "*"
+  }
+}
+
+```
+
+### 4. RN 프로젝트 생성
+
+```bash
+cd packages
+npx react-native init [RN-ProjectName] --template react-native-template-typescript
+cd [RN-ProjectName]
+rm yarn.lock && rm -rf node_modules && rm -rf .git
+```
+
+### 4. RN 프로젝트 metro.config 설정
+If you add a dependency to the workspace root, it will have no choice but to be at the top, so what I like to do to make sure React Native will have a consistent path in my node_modules is adding it to the top-level package.json. (Using “*” as the version number aligns it to the one in your packages).
+
+Open packages/mobile/metro.config.js and set the projectRoot to the monorepo root.
+
+```javascript
+// metro.config.js 경로 수정
+
+const path = require('path');
+
+module.exports = {
+  projectRoot: path.resolve(__dirname, '../../'),
+  transformer: {
+    getTransformOptions: async () => ({
+      transform: {
+        experimentalImportSupport: false,
+        inlineRequires: false,
+      },
+    }),
+  },
+};
+```
+
+### 5. RN 프로젝트 iOS 설정 - 경로 설정
+ios 엑스코드 실행
+```bash
+$ open packages/safesea_msd_app/ios/myproject.xcodeproj/
+```
+AppDelegate.m 파일 열고  
+jsBundleURLForBundleRoot:@"index" 부분 검색해서  
+index 부분을 packages/safesea_msd_app/index 로 변경  
+
+좌측에 프로젝트 이름 클릭하고  
+오른쪽 Build Phases > Bundle React Native code and Images  
+안에 내용 아래와 같이 변경  
+export NODE_BINARY=node  
+export EXTRA_PACKAGER_ARGS="--entry-file packages/safesea_msd_app/index.js"  
+../../../node_modules/react-native/scripts/react-native-xcode.sh  
+
+Podfile 수정
+
+```swift
+require_relative '../../../node_modules/react-native/scripts/react_native_pods'
+require_relative '../../../node_modules/@react-native-community/cli-platform-ios/native_modules'
+
+platform :ios, '10.0'
+
+target 'myproject' do
+  use_react_native!(path: '../../../node_modules/react-native')
+
+  target 'myprojectTests' do
+    inherit! :complete
+    # Pods for testing
+  end
+
+  # Enables Flipper.
+  #
+  # Note that if you have use_frameworks! enabled, Flipper will not work and
+  # you should disable these next few lines.
+  use_flipper!
+  post_install do |installer|
+    flipper_post_install(installer)
+  end
+end
+
+target 'myproject-tvOS' do
+  # Pods for myproject-tvOS
+
+  target 'myproject-tvOSTests' do
+    inherit! :search_paths
+    # Pods for testing
+  end
+end
+```
+
+### 6. RN 프로젝트 Android 설정 - 경로 설정
+Open packages/safesea_msd_app/android/app/src/main/java/com/myproject/MainApplication.java  
+getJSMainModuleName 검색  
+"index" 부분 "packages/safesea_msd_app/index" 로 변경  
+
+Open packages/safesea_msd_app/android/app/build.gradle
+project.ext.react =  검색
+아래 처럼 수정
+```gradle
+// 경로 변경
+project.ext.react = [
+    enableHermes: false,  // clean and rebuild if changing
+    cliPath: "../../node_modules/react-native/local-cli/cli.js",
+    entryFile: "packages/safesea_msd_app/index.js",
+]
+
+// 경로 변경
+apply from: "../../../../node_modules/react-native/react.gradle"
+
+// 경로 변경
+if (enableHermes) {
+        def hermesPath = "../../../../node_modules/hermes-engine/android/";
+        debugImplementation files(hermesPath + "hermes-debug.aar")
+        releaseImplementation files(hermesPath + "hermes-release.aar")
+    } else {
+        implementation jscFlavor
+    }
+
+// 경로 변경
+apply from: file("../../../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
+```
+
+
+
+Open packages/safesea_msd_app/android/settings.gradle
+node_modules 경로 수정
+```gradle
+rootProject.name = 'safesea_msd_app'
+apply from: file("../../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesSettingsGradle(settings)
+include ':app'
+```
+
+Open packages/safesea_msd_app/android/build.gradle
+node_modules 경로 수정
+```gradle
+allprojects {
+    repositories {
+        mavenLocal()
+        maven {
+            // All of React Native (JS, Obj-C sources, Android binaries) is installed from npm
+            url("$rootDir/../../../node_modules/react-native/android")
+        }
+        maven {
+            // Android JSC is installed from npm
+            url("$rootDir/../../../node_modules/jsc-android/dist")
+        }
+
+        google()
+        jcenter()
+        maven { url 'https://www.jitpack.io' }
+    }
+}
+```
+
+
+
