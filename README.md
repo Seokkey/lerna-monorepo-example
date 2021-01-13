@@ -10,19 +10,19 @@ yarn workspace
 - 패키지 간 의존성 설치 및 관리(symlink)
 
 
-1. lerna 설치
+### 1. lerna 설치
 
 ```bash
 npm install -g lerna
 ```
 
-2. lerna repository init
+### 2. lerna repository init
 새로운 lerna 저장소를 생성하거나 현재 저장소를 새로운 lerna 버전으로 업데이트합니다.
 ```bash
 lerna init --independent // or -i
 ```
 
-3. Root/lerna.json
+### 3. Root/lerna.json
 
 ```json
 {
@@ -39,7 +39,7 @@ lerna init --independent // or -i
 }
 ```
 
-4. Root/package.json
+### 4. Root/package.json
 
 ```json
 {
@@ -56,13 +56,13 @@ lerna init --independent // or -i
 }
 ```
 
-5. 패키지 생성
+### 5. 패키지 생성
 
 ```bash
 lerna create [PACKAGE_NAME]
 ```
 
-6. Root경로 공통 종속성 추가  
+### 6. Root경로 공통 종속성 추가  
 Root 경로에 모든 패키지가 공통으로 사용될 모듈을 설치  
 lerna add라는 명령어를 사용할 수도 있지만 lerna add는 패키지 간 종속성 설치 시 사용하는 걸 추천  
 그냥 lerna add를 사용한다 하더라도 모듈은 Root 경로에 설치되겠지만 각 패키지에 dependencies가 걸리게 되어있다. 그렇기 때문에 Root 경로의 공통 모듈을 npm또는 yarn을 통하여 설치하자.
@@ -75,7 +75,7 @@ yarn을 통해 eslint를 설치하기 위해서는 workspace를 지정하였기 
 설치 후 Root 경로의 package.json을 보면 devDependencies에 eslint가 설치된 것을 확인
 
 
-7. 각 패키지 모듈 추가
+### 7. 각 패키지 모듈 추가
 각 패키지에 모듈을 설치할 때에는 공통 모듈을 설치하는 것과는 다르게 lerna add를 통해서 각 패키지에 설치 할 수 있다. 이 과정에서 hoisting이 일어나고 종속성을 최적화시킨다.  
 lerna add를 사용할 때는 --scope 옵션을 통해서 어느 패키지에 설치할 것인가를 명시해준다. --scope를 주지 않을 경우 모든 패키지에 설치된다.
 ```bash
@@ -105,7 +105,7 @@ yarn workspace @monorepo/sun add @monorepo/sky@0.0.0 // sun패키지에 sky패�
 로컬은 찾아보지도 않고 에러를 내버린다.  
 
 
-8. 각 패키지 기능 추가
+### 8. 각 패키지 기능 추가
 log-core.js 수정
 ```javascript
 //chalk를 사용하여 console.log를 출력해 주는 코드를 작성
@@ -150,13 +150,13 @@ log-cli/package.json 수정
 }
 ```
 
-9. 로컬 테스트
+### 9. 로컬 테스트
 ```bash
 npm link packages/log-cli // npm link를 통하여 global로 symbolic link를 생성
 log-cli // 전역 어디서든 실행 가능
 ```
 
-10. 패키지 내 참조 및 설치
+### 10. 패키지 내 참조 및 설치
 로컬에서 실행하면 정상적으로 동작된다. 로컬에서는 log-cli와 log-core 연관 관계를 인지하고 있기 때문이다.  
 실제로 패키지를 배포 후 배포된 패키지를 설치하여 실행한다면 패키지를 찾지 못함  
 log-cli에서 log-core를 삽입하였는데 실제로 log-cli에는 log-core가 종속되지 않았기 때문에 발생한다.  
@@ -180,7 +180,7 @@ yarn workspace log-cli add log-core
 ```
 
 
-11. 각각 패키지 모듈 인스톨  
+### 11. 각각 패키지 모듈 인스톨  
 ```bash
 lerna bootstrap --hoist
 OR
@@ -194,12 +194,12 @@ yarn만 입력해주면, 각 패키지의 모듈을 모아서 루트에 딱 한�
 yarn workspace의 yarn install은 lerna bootstrap --hoist 명령과 똑같이 동작한다.  
 하지만 패키지별 버전관리와 배포, npm scripts 실행등은 아직 yarn에서 제공하지 못하기 때문에 이 부분은 lerna가 해줘야한다.
 
-12. 모든 모듈 삭제
+### 12. 모든 모듈 삭제
 ```bash
 lerna clean
 ```
 
-13. dev dependencies Root로 통합  
+### 13. dev dependencies Root로 통합  
 모든 package 에 설정된 devDependencies 을 root devDependencies 으로 옮긴다.  
 그리고, dependencies 에 package 를 file:packages/package-1 형태로 연결한다.  
 ```bash
@@ -216,7 +216,7 @@ lerna link convert
 이경우 root 에서 lerna run --scope package-1 start 로 실행하면 root 에 있는 devDependencies 를 참조할 수 있게 된다.  
 여기에서 lerna run 명령어는 package.json 에 있는 script 를 실행시킨다. — scope 으로 package 를 선택할 수 있다.  
 
-14. run
+### 14. run
 ```bash
 lerna run [--scope package-1] [script]
 ```
@@ -225,45 +225,28 @@ lerna run [--scope package-1] [script]
 예를 들어 각 프로젝트에 test관련 script가 존재한다면, 루트 디렉토리에서 lerna run test 커맨드로 모든 프로젝트의 테스트 코드를 실행할 수 있습니다.
 
 
-15. import
+### 15. import
 ```bash
 lerna import <pathToRepo>
 ```
 로컬에 위치하는 <pathToRepo>에 해당하는 패키지를 커밋 히스토리와 함께 packages/<directory-name>으로 import합니다.  
 
 
-16. publish
+### 16. publish
 ```bash
 lerna publish
 ```
 업데이트된 패키지의 새로운 배포를 생성합니다. 새 버전으로 올리고 git과 npm에서 모든 패키지를 업데이트합니다.
 
-17. changed
+### 17. changed
 ```bash
 lerna changed
 ```
 지난 배포 이후 어떤 패키지에 변화가 있었는 지 확인합니다.
 
-18. diff
+### 18. diff
 lerna diff [package?]
 지난 배포 이후 개별 혹은 모든 패키지의 diff를 보여줍니다.
-
-19. 의존성 추가
-
-
-
-##
-참고 : https://github.com/wecanooo/react-native-web-mono-repo [react web & native 모노레포 프로젝트]  
-참고 : https://medium.com/reactbrasil/reuse-your-eslint-prettier-config-in-a-monorepo-with-lerna-54c1800cacdc  
-참고 : https://kdydesign.github.io/2020/08/27/mono-repo-lerna-example/  
-참고 : https://geonlee.tistory.com/215 [빠리의 택시 운전사]  
-참고 : https://simsimjae.tistory.com/384 [104%]  
-참고 : https://so-so.dev/pattern/mono-repo-config/  
-참고 : https://pks2974.medium.com/mono-repo-%EB%A5%BC-%EC%9C%84%ED%95%9C-lerna-%EA%B0%84%EB%8B%A8-%EC%A0%95%EB%A6%AC%ED%95%98%EA%B8%B0-65c22029988  
-참고 : https://chaewonkong.github.io/posts/lerna-react-typescript.html  
-참고 : https://rokt33r.github.io/posts/monorepo-and-lerna  
-
-
 
 
 ## react-native lerna 설정
@@ -484,3 +467,18 @@ allprojects {
 
 
 
+
+##
+참고 : https://github.com/wecanooo/react-native-web-mono-repo [react web & native 모노레포 프로젝트]  
+참고 : https://medium.com/reactbrasil/reuse-your-eslint-prettier-config-in-a-monorepo-with-lerna-54c1800cacdc  
+참고 : https://kdydesign.github.io/2020/08/27/mono-repo-lerna-example/  
+참고 : https://geonlee.tistory.com/215 [빠리의 택시 운전사]  
+참고 : https://simsimjae.tistory.com/384 [104%]  
+참고 : https://so-so.dev/pattern/mono-repo-config/  
+참고 : https://pks2974.medium.com/mono-repo-%EB%A5%BC-%EC%9C%84%ED%95%9C-lerna-%EA%B0%84%EB%8B%A8-%EC%A0%95%EB%A6%AC%ED%95%98%EA%B8%B0-65c22029988  
+참고 : https://chaewonkong.github.io/posts/lerna-react-typescript.html  
+참고 : https://rokt33r.github.io/posts/monorepo-and-lerna
+
+##
+리액트 네이티브 관련
+참고 : https://medium.com/@ratebseirawan/react-native-0-63-monorepo-walkthrough-36ea27d95e26
