@@ -62,7 +62,7 @@ lerna init --independent // or -i
 lerna create [PACKAGE_NAME]
 ```
 
-6. Root경로 공통 종속성 추가
+6. Root경로 공통 종속성 추가  
 Root 경로에 모든 패키지가 공통으로 사용될 모듈을 설치  
 lerna add라는 명령어를 사용할 수도 있지만 lerna add는 패키지 간 종속성 설치 시 사용하는 걸 추천  
 그냥 lerna add를 사용한다 하더라도 모듈은 Root 경로에 설치되겠지만 각 패키지에 dependencies가 걸리게 되어있다. 그렇기 때문에 Root 경로의 공통 모듈을 npm또는 yarn을 통하여 설치하자.
